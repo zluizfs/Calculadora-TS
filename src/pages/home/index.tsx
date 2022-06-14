@@ -7,10 +7,10 @@ import CalcView from '../../components/CalcView';
 import { Background, ButtonContainer, Container } from './styles';
 
 export default function Home() {
-  const buttons = ['C', 'square', '%', '/', '7', '8', '9', 'x', '4', '5', '6', '-', '1', '2', '3', '+', '0', 'DEL', '=']
+  const buttons = ['C', '√', '%', '/', '7', '8', '9', 'x', '4', '5', '6', '-', '1', '2', '3', '+', '0', 'DEL', '^', '=']
   const unicode = {
     '/': '\u00F7',
-    'square': '\u221A'
+    '√': '\u221A'
   }
 
 
@@ -20,35 +20,48 @@ export default function Home() {
 
   function calculator() {
     const splitNumbers = current.split(' ')
-    const fistNumber = parseFloat(splitNumbers[0])
+    const firstNumber = parseFloat(splitNumbers[0])
     const lastNumber = parseFloat(splitNumbers[2])
     const operator = splitNumbers[1]
 
     switch (operator) {
       case '+':
-        setCurrent((fistNumber + lastNumber).toString())
+        setCurrent((firstNumber + lastNumber).toString())
         return
       case '-':
-        setCurrent((fistNumber - lastNumber).toString())
+        setCurrent((firstNumber - lastNumber).toString())
         return
       case 'x':
-        setCurrent((fistNumber * lastNumber).toString())
+        setCurrent((firstNumber * lastNumber).toString())
         return
-      case '/':
-        setCurrent((fistNumber / lastNumber).toString())
+      case unicode['/']:
+        if(firstNumber === 0 && lastNumber === 0) {
+          setCurrent('Impos. dividir por 0');
+          return
+        }
+        
+        setCurrent((firstNumber / lastNumber).toString())
+        return
+      case '√':
+        setCurrent((Math.sqrt(firstNumber)).toString())
+        return
+      case '%':
+          setCurrent((firstNumber / 100).toString())
+          return
+      case '^':
+        setCurrent((Math.pow(firstNumber, lastNumber)).toString())
         return
     }
-
   }
 
   function handleOperation(button: string) {
 
-    if (button === 'x' ||button === '+' || button === '-' || button === '%') {
+    if (button === 'x' || button === '+' || button === '-' || button === '%' || button === '^') {
       setCurrent(current + " " + button + " ")
       return
     }
 
-    if (button === '/' || button === 'square') {
+    if (button === '/' || button === '√') {
       setCurrent(current + " " + unicode[button] + " ")
       return
     }
@@ -74,7 +87,7 @@ export default function Home() {
   return (
     <Background>
       <Container>
-        <CalcView currentNumbers={current} lastNumbers={last} />
+        <CalcView currentNumbers={current !== 'NaN' ? current : 'Oper. não suportada'} lastNumbers={last} />
         <ButtonContainer>
           {buttons.map((button) =>
             button === '-' || button === '+' || button === '='  || button === 'x' ?
@@ -83,13 +96,7 @@ export default function Home() {
                 backgroundColor="orange"
                 onPress={() => handleOperation(button)}
               />
-              :
-              button === '0' ?
-                <Button
-                  title={button}
-                  width="110px"
-                  onPress={() => handleOperation(button)}
-                />
+              
                 :
                 button === 'DEL' ?
                   <Button
@@ -98,11 +105,11 @@ export default function Home() {
                     onPress={() => handleOperation(button)}
                   />
                   :
-                  button === '/' || button === 'square' ?
+                  button === '/' || button === '√' ?
                     <Button
                       title={unicode[button]}
                       fontSize="28px"
-                      backgroundColor={button !== 'square' ? 'orange' : 'darkGray'}
+                      backgroundColor={button !== '√' ? 'orange' : 'darkGray'}
                       onPress={() => handleOperation(button)}
                     />
 
